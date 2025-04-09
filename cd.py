@@ -13,8 +13,8 @@ import subprocess
 import numpy as np
 import soundfile as sf
 import requests
-from google import genai
-from google.genai import types # Need types for Content/Part/Config/SafetySetting
+import google.generativeai as genai
+from google.generativeai import types # Need types for Content/Part/Config/SafetySetting
 from IPython.display import display, Image, Audio, HTML
 from PIL import Image as PILImage
 from kokoro import KPipeline
@@ -208,10 +208,10 @@ else:
 
 # Define Safety Settings
 safety_settings = [
-    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
-    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+    genai.types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+    genai.types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+    genai.types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+    genai.types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
 ]
 print(f"⚙️ Defined Safety Settings: {safety_settings}")
 
@@ -254,14 +254,14 @@ def generate_prompt(prompt_input="Create a children's story with a different ani
     """
 
     contents = [
-        types.Content(
+        genai.types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text=enhanced_prompt_input),
+                genai.types.Part.from_text(text=enhanced_prompt_input),
             ],
         ),
     ]
-    generate_content_config = types.GenerateContentConfig(
+    generate_content_config = genai.types.GenerateContentConfig(
         response_mime_type="text/plain",
     )
 
@@ -568,14 +568,14 @@ def generate(use_prompt_generator=True, prompt_input="Create a unique children's
     # --- End Modified Prompt ---
 
     contents = [
-        types.Content(
+        genai.types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text=prompt_text),
+                genai.types.Part.from_text(text=prompt_text),
             ],
         ),
     ]
-    generate_content_config = types.GenerateContentConfig(
+    generate_content_config = genai.types.GenerateContentConfig(
         response_modalities=["image", "text"],
         response_mime_type="text/plain",
         safety_settings=safety_settings,
@@ -1055,10 +1055,10 @@ def generate(use_prompt_generator=True, prompt_input="Create a unique children's
 
                     # Retry with the enhanced prompt
                     retry_contents = [
-                        types.Content(
+                        genai.types.Content(
                             role="user",
                             parts=[
-                                types.Part.from_text(text=enhanced_prompt),
+                                genai.types.Part.from_text(text=enhanced_prompt),
                             ],
                         ),
                     ]
@@ -1762,10 +1762,10 @@ def generate_seo_metadata(story_text, image_files, prompt_text):
     """
 
     contents = [
-        types.Content(
+        genai.types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text=seo_prompt),
+                genai.types.Part.from_text(text=seo_prompt),
             ],
         ),
     ]
