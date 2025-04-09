@@ -1,5 +1,6 @@
 name: Run CD Script
 
+# Workflow for generating children's stories automatically
 on:
   workflow_dispatch:  # Manual trigger
   schedule:
