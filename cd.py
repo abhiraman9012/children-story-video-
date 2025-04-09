@@ -208,10 +208,10 @@ else:
 
 # Define Safety Settings
 safety_settings = [
-    genai.types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
-    genai.types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
-    genai.types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
-    genai.types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
 print(f"⚙️ Defined Safety Settings: {safety_settings}")
 
@@ -254,16 +254,16 @@ def generate_prompt(prompt_input="Create a children's story with a different ani
     """
 
     contents = [
-        genai.types.Content(
-            role="user",
-            parts=[
-                genai.types.Part.from_text(text=enhanced_prompt_input),
+        {
+            "role": "user",
+            "parts": [
+                {"text": enhanced_prompt_input},
             ],
-        ),
+        },
     ]
-    generate_content_config = genai.types.GenerateContentConfig(
-        response_mime_type="text/plain",
-    )
+    generate_content_config = {
+        "response_mime_type": "text/plain",
+    }
 
     print(f"ℹ️ Using Prompt Generator Model: {model}")
     print(f"📝 Using Input: {prompt_input}")
@@ -276,7 +276,6 @@ def generate_prompt(prompt_input="Create a children's story with a different ani
             stream = client.models.generate_content_stream(
                 model=model,
                 contents=contents,
-                config=generate_content_config,
             )
 
             print("--- Prompt Generation Stream ---")
@@ -293,7 +292,6 @@ def generate_prompt(prompt_input="Create a children's story with a different ani
             response = client.models.generate_content(
                 model=model,
                 contents=contents,
-                config=generate_content_config,
             )
 
             if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
@@ -568,18 +566,18 @@ def generate(use_prompt_generator=True, prompt_input="Create a unique children's
     # --- End Modified Prompt ---
 
     contents = [
-        genai.types.Content(
-            role="user",
-            parts=[
-                genai.types.Part.from_text(text=prompt_text),
+        {
+            "role": "user",
+            "parts": [
+                {"text": prompt_text},
             ],
-        ),
+        },
     ]
-    generate_content_config = genai.types.GenerateContentConfig(
-        response_modalities=["image", "text"],
-        response_mime_type="text/plain",
-        safety_settings=safety_settings,
-    )
+    generate_content_config = {
+        "response_modalities": ["image", "text"],
+        "response_mime_type": "text/plain",
+        "safety_settings": safety_settings,
+    }
 
     print(f"ℹ️ Using Model: {model}")
     print(f"📝 Using Prompt: {prompt_text}") # Show the modified prompt
@@ -604,7 +602,7 @@ def generate(use_prompt_generator=True, prompt_input="Create a unique children's
                     return client.models.generate_content_stream(
                         model=model,
                         contents=contents,
-                        config=generate_content_config,
+                        safety_settings=safety_settings
                     )
 
                 stream = retry_api_call(attempt_stream_generation)
@@ -621,7 +619,7 @@ def generate(use_prompt_generator=True, prompt_input="Create a unique children's
                         return client.models.generate_content(
                             model=model,
                             contents=contents,
-                            config=generate_content_config,
+                            safety_settings=safety_settings
                         )
 
                     response = retry_api_call(attempt_non_stream_generation)
@@ -762,7 +760,7 @@ def generate(use_prompt_generator=True, prompt_input="Create a unique children's
                             response = client.models.generate_content(
                                 model=model,
                                 contents=contents,
-                                config=generate_content_config,
+                                safety_settings=safety_settings
                             )
 
                             if response.candidates and response.candidates[0].content:
@@ -1055,12 +1053,12 @@ def generate(use_prompt_generator=True, prompt_input="Create a unique children's
 
                     # Retry with the enhanced prompt
                     retry_contents = [
-                        genai.types.Content(
-                            role="user",
-                            parts=[
-                                genai.types.Part.from_text(text=enhanced_prompt),
+                        {
+                            "role": "user",
+                            "parts": [
+                                {"text": enhanced_prompt},
                             ],
-                        ),
+                        },
                     ]
 
                     # Clear previous results
@@ -1074,7 +1072,7 @@ def generate(use_prompt_generator=True, prompt_input="Create a unique children's
                             return client.models.generate_content(
                                 model=model,
                                 contents=retry_contents,
-                                config=generate_content_config,
+                                safety_settings=safety_settings
                             )
 
                         retry_response = retry_api_call(attempt_retry_generation)
@@ -1762,12 +1760,12 @@ def generate_seo_metadata(story_text, image_files, prompt_text):
     """
 
     contents = [
-        genai.types.Content(
-            role="user",
-            parts=[
-                genai.types.Part.from_text(text=seo_prompt),
+        {
+            "role": "user",
+            "parts": [
+                {"text": seo_prompt},
             ],
-        ),
+        },
     ]
 
     print("⏳ Generating SEO-friendly metadata...")
@@ -1778,7 +1776,7 @@ def generate_seo_metadata(story_text, image_files, prompt_text):
             contents=contents,
         )
 
-        if response.candidates and response.candidates[0].content:
+        if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
             response_text = ""
             for part in response.candidates[0].content.parts:
                 if hasattr(part, 'text') and part.text:
