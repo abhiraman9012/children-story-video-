@@ -100,9 +100,9 @@ def patch_cd_module():
     # Save the original os.environ setter
     original_setitem = os.environ.__class__.__setitem__
     
-    # Define a custom setitem that prevents overriding GEMINI_API_KEY
+    # Define a custom setitem that allows GEMINI_API_KEY to be set if it's empty
     def protected_setitem(self, key, value):
-        if key == 'GEMINI_API_KEY' and 'GEMINI_API_KEY' in os.environ:
+        if key == 'GEMINI_API_KEY' and 'GEMINI_API_KEY' in os.environ and os.environ['GEMINI_API_KEY']:
             print(f"⚠️ Prevented overriding GEMINI_API_KEY environment variable")
             return
         return original_setitem(self, key, value)
