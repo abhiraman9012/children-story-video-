@@ -1,0 +1,57 @@
+name: Run CD Script
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
+
+jobs:
+  run-cd-script:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Set a 30-minute timeout for the entire job
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create temp directory
+        run: |
+          mkdir -p temp
+          echo "TEMP_DIR=$GITHUB_WORKSPACE/temp" >> $GITHUB_ENV
+
+      - name: Create credentials file
+        env:
+          GOOGLE_DRIVE_CREDENTIALS: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+        run: |
+          echo "$GOOGLE_DRIVE_CREDENTIALS" > temp/drive_credentials.json
+          
+      - name: Run the script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MAX_RUNTIME_MINUTES: 25  # Allow 25 minutes for the script, leaving 5 minutes for other steps
+        run: |
+          python main.py
+          
+      - name: Upload generated files
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-content
+          path: |
+            temp/*.mp4
+            temp/*.jpg
+            temp/*.png
+            temp/*.wav
