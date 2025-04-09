@@ -1,4 +1,5 @@
 # Story Generation & Video Creation with GitHub Actions
+[![GitHub Actions Status](https://github.com/abhiraman9012/children-story-video-/workflows/Run%20CD%20Script/badge.svg)](https://github.com/abhiraman9012/children-story-video-/actions)
 
 This repository contains a Python script (`cd.py`) that generates children's stories, images, and videos using Google's Gemini AI model. The script is configured to run automatically via GitHub Actions.
 
